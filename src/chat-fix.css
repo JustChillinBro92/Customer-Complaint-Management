@@ -1,0 +1,239 @@
+/* Complaint Copilot: a focused chat surface in the QMS visual language. */
+.ai-section {
+  position: absolute;
+  top: 245px;
+  right: 28px;
+  width: 35%;
+  height: calc(100vh - 300px);
+  min-height: 620px;
+  margin-top: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #fbfcfa;
+  border: 1px solid var(--line);
+  box-shadow: 0 14px 40px #1b34300d;
+  color: var(--ink);
+}
+.copilot-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  flex: 0 0 auto;
+  padding: 19px 20px 17px;
+  border-bottom: 1px solid var(--line);
+  background: #fff;
+}
+.copilot-mark {
+  display: grid;
+  place-items: center;
+  min-width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: var(--mint);
+  color: var(--blue);
+}
+.copilot-heading .eyebrow {
+  margin: 1px 0 4px;
+  font-size: 9px;
+}
+.copilot-heading h2 {
+  margin: 0;
+  font: 600 18px "Space Grotesk";
+  letter-spacing: -0.03em;
+}
+.copilot-heading p:not(.eyebrow) {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.4;
+}
+.copilot-heading .online {
+  margin-left: auto;
+  padding-top: 2px;
+  font-size: 10px;
+  color: #518064;
+  white-space: nowrap;
+}
+.copilot-heading .online i {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 5px;
+  border-radius: 50%;
+  background: #58a674;
+}
+.ai-section .extraction-status {
+  flex: 0 0 auto;
+  margin: 13px 18px 0;
+  padding: 10px 11px;
+  border: 1px solid #dce6e1;
+  border-radius: 6px;
+  background: #f3f8f5;
+}
+.ai-section .progress-heading {
+  font-size: 10px;
+}
+.ai-section .progress-track {
+  margin: 8px 0 6px;
+}
+.ai-section .extraction-status > small {
+  font-size: 9px;
+}
+.ai-section > .messages {
+  flex: 1 1 auto;
+  min-height: 140px;
+  max-height: none;
+  overflow-y: auto;
+  margin: 0;
+  padding: 20px 18px 10px;
+  scrollbar-width: thin;
+}
+.ai-section > .messages:before {
+  content: "Review the complaint record, ask for a summary, or request help assessing the next action.";
+  display: block;
+  margin: 0 0 18px;
+  padding: 10px 12px;
+  border-left: 2px solid var(--orange);
+  background: #fffaf3;
+  color: #756653;
+  font-size: 10px;
+  line-height: 1.5;
+}
+.ai-section .message {
+  max-width: 92%;
+  margin-bottom: 14px;
+  gap: 8px;
+}
+.ai-section .message > span {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--mint);
+  color: var(--blue);
+  flex-shrink: 0;
+}
+.ai-section .message p {
+  padding: 10px 12px;
+  margin: 0;
+  border: 1px solid #e2e8e5;
+  border-radius: 7px;
+  background: #fff;
+  color: #566667;
+  font-size: 11px;
+  line-height: 1.5;
+}
+.ai-section .message.user {
+  margin-left: auto;
+  flex-direction: row-reverse;
+}
+.ai-section .message.user > span {
+  background: #e9edef;
+  color: #708080;
+}
+.ai-section .message.user p {
+  border-color: var(--blue);
+  background: var(--blue);
+  color: #fff;
+}
+.ai-section .assistant-input {
+  position: static;
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  height: 44px;
+  margin: 0 16px 9px;
+  padding: 3px;
+  border: 1px solid #cfdad6;
+  border-radius: 6px;
+  background: #fff;
+  box-shadow: 0 3px 10px #1b343008;
+}
+.ai-section .assistant-input:before {
+  display: none;
+  pointer-events: none;
+}
+.ai-section .assistant-input input {
+  min-width: 0;
+  flex: 1;
+  border: 0;
+  outline: 0;
+  padding: 8px 7px;
+  color: var(--ink);
+  background: transparent;
+  font-size: 11px;
+}
+.ai-section .assistant-input input::placeholder {
+  color: #8b9897;
+}
+.ai-section .assistant-input button {
+  display: grid;
+  place-items: center;
+  border: 0;
+}
+.ai-section .attach-button {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 34px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: #71817f;
+  cursor: pointer;
+}
+.ai-section .attach-button:hover {
+  background: var(--mint);
+  color: var(--blue-dark);
+}
+.ai-section .send-button {
+  width: 34px;
+  height: 34px;
+  border-radius: 4px;
+  background: var(--blue);
+  color: #fff;
+  cursor: pointer;
+}
+.ai-section .send-button:hover {
+  background: var(--blue-dark);
+}
+.ai-section .send-button:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+.ai-section .disclaimer {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 0 0 auto;
+  margin: 0 18px 13px;
+  color: #9aa5a5;
+  font-size: 9px;
+}
+@media (max-width: 720px) {
+  .ai-section {
+    position: static;
+    width: 100%;
+    height: 620px;
+    min-height: 0;
+    margin-top: 24px;
+  }
+  .copilot-heading {
+    padding: 17px 16px;
+  }
+  .ai-section > .messages {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+  .ai-section .assistant-input {
+    margin-left: 13px;
+    margin-right: 13px;
+  }
+  .ai-section .disclaimer {
+    margin-left: 15px;
+    margin-right: 15px;
+  }
+}
