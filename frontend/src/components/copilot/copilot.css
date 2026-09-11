@@ -1,7 +1,6 @@
-/* Complaint Copilot: a focused chat surface in the QMS visual language. */
 .ai-section {
   position: absolute;
-  top: 245px;
+  top: 269px;
   right: 28px;
   width: 35%;
   height: calc(100vh - 300px);
@@ -64,7 +63,7 @@
   border-radius: 50%;
   background: #58a674;
 }
-.ai-section .extraction-status {
+.extraction-status {
   flex: 0 0 auto;
   margin: 13px 18px 0;
   padding: 10px 11px;
@@ -72,16 +71,49 @@
   border-radius: 6px;
   background: #f3f8f5;
 }
-.ai-section .progress-heading {
+.extraction-status.error {
+  border-color: #e6caca;
+  background: #fff6f5;
+}
+.extraction-status.error .progress-track {
+  background: #f1dddd;
+}
+.extraction-status.error .progress-track span {
+  background: #c46666;
+}
+.progress-heading {
+  display: flex;
+  justify-content: space-between;
   font-size: 10px;
+  color: #617170;
 }
-.ai-section .progress-track {
+.progress-heading > span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.progress-heading b {
+  font-size: 10px;
+  color: var(--blue);
+}
+.progress-track {
+  height: 5px;
+  background: #dfe8e4;
   margin: 8px 0 6px;
+  overflow: hidden;
+  border-radius: 5px;
 }
-.ai-section .extraction-status > small {
+.progress-track span {
+  height: 100%;
+  display: block;
+  background: var(--blue);
+  transition: width 0.5s;
+}
+.extraction-status > small {
   font-size: 9px;
+  color: #8a9898;
 }
-.ai-section > .messages {
+.messages {
   flex: 1 1 auto;
   min-height: 140px;
   max-height: none;
@@ -90,8 +122,8 @@
   padding: 20px 18px 10px;
   scrollbar-width: thin;
 }
-.ai-section > .messages:before {
-  content: "Review the complaint record, ask for a summary, or request help assessing the next action.";
+.messages:before {
+  content: "Review the complaint record before proceeding to commit to database.";
   display: block;
   margin: 0 0 18px;
   padding: 10px 12px;
@@ -101,12 +133,13 @@
   font-size: 10px;
   line-height: 1.5;
 }
-.ai-section .message {
+.message {
+  display: flex;
   max-width: 92%;
   margin-bottom: 14px;
   gap: 8px;
 }
-.ai-section .message > span {
+.message > span {
   width: 26px;
   height: 26px;
   border-radius: 50%;
@@ -116,7 +149,7 @@
   color: var(--blue);
   flex-shrink: 0;
 }
-.ai-section .message p {
+.message p {
   padding: 10px 12px;
   margin: 0;
   border: 1px solid #e2e8e5;
@@ -126,20 +159,76 @@
   font-size: 11px;
   line-height: 1.5;
 }
-.ai-section .message.user {
+.message.user {
   margin-left: auto;
   flex-direction: row-reverse;
 }
-.ai-section .message.user > span {
+.message.user > span {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
   background: #e9edef;
+  border: 1px solid #d9e1df;
   color: #708080;
+  border-radius: 50%;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: .02em;
+  line-height: 1;
 }
-.ai-section .message.user p {
+.message.user p {
   border-color: var(--blue);
   background: var(--blue);
   color: #fff;
 }
-.ai-section .assistant-input {
+.thinking-indicator {
+  display: flex;
+  align-items: center;
+  height: 34px;
+  margin: 0 0 14px;
+}
+.thinking-ring {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  color: var(--blue);
+  background: var(--mint);
+  isolation: isolate;
+}
+.thinking-ring:before {
+  content: "";
+  position: absolute;
+  inset: -0.3px;
+  z-index: -1;
+  border-radius: 50%;
+  background: conic-gradient(
+    #4285f4,
+    #9b72cb,
+    #d96570,
+    #f4b400,
+    #34a853,
+    #4285f4
+  );
+  animation: thinking-spin 1.15s linear infinite;
+}
+.thinking-ring:after {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  z-index: -1;
+  border-radius: 50%;
+  background: var(--mint);
+}
+@keyframes thinking-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.assistant-input {
   position: static;
   display: flex;
   align-items: center;
@@ -152,11 +241,11 @@
   background: #fff;
   box-shadow: 0 3px 10px #1b343008;
 }
-.ai-section .assistant-input:before {
-  display: none;
+.assistant-input:before {
+  display: none !important;
   pointer-events: none;
 }
-.ai-section .assistant-input input {
+.assistant-input input {
   min-width: 0;
   flex: 1;
   border: 0;
@@ -166,15 +255,10 @@
   background: transparent;
   font-size: 11px;
 }
-.ai-section .assistant-input input::placeholder {
+.assistant-input input::placeholder {
   color: #8b9897;
 }
-.ai-section .assistant-input button {
-  display: grid;
-  place-items: center;
-  border: 0;
-}
-.ai-section .attach-button {
+.attach-button {
   display: grid;
   place-items: center;
   width: 32px;
@@ -185,26 +269,29 @@
   color: #71817f;
   cursor: pointer;
 }
-.ai-section .attach-button:hover {
+.attach-button:hover {
   background: var(--mint);
   color: var(--blue-dark);
 }
-.ai-section .send-button {
+.send-button {
+  display: grid;
+  place-items: center;
   width: 34px;
   height: 34px;
+  border: 0;
   border-radius: 4px;
   background: var(--blue);
   color: #fff;
   cursor: pointer;
 }
-.ai-section .send-button:hover {
+.send-button:hover {
   background: var(--blue-dark);
 }
-.ai-section .send-button:disabled {
+.send-button:disabled {
   opacity: 0.65;
   cursor: wait;
 }
-.ai-section .disclaimer {
+.disclaimer {
   display: flex;
   align-items: center;
   gap: 4px;
@@ -224,15 +311,15 @@
   .copilot-heading {
     padding: 17px 16px;
   }
-  .ai-section > .messages {
+  .messages {
     padding-left: 15px;
     padding-right: 15px;
   }
-  .ai-section .assistant-input {
+  .assistant-input {
     margin-left: 13px;
     margin-right: 13px;
   }
-  .ai-section .disclaimer {
+  .disclaimer {
     margin-left: 15px;
     margin-right: 15px;
   }
