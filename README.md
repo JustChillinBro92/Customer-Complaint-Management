@@ -13,6 +13,7 @@ A continuous-page AI-assisted customer complaint intake workflow for pharmaceuti
 ## Run the frontend
 
 ```powershell
+cd frontend
 npm install
 npm run dev
 ```
@@ -36,7 +37,7 @@ GROQ_API_KEY=your_token
 GROQ_MODEL=openai/gpt-oss-120b
 ```
 
-Without a Groq key, the app uses a deterministic parser and demo complaint data so the demo works offline. Text files are read directly; other supported extensions use the demo extraction path.
+The complaint extraction, risk assessment, and assistant updates require the configured Groq model. AI intake currently reads TXT and EML files directly; unsupported file types are rejected instead of being substituted with demo data.
 
 ## Demo workflow
 

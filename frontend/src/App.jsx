@@ -23,7 +23,6 @@ import {
   updateField,
 } from "./store";
 import { complaintApi } from "./services/complaintApi";
-import { demoComplaintFields, demoComplaintText } from "./data/demoComplaint";
 import { useComplaintAssistant } from "./hooks/useComplaintAssistant";
 import "./layout-overrides.css";
 import "./chat-fix.css";
@@ -169,21 +168,17 @@ function App() {
           message: data.assistant_message,
         }),
       );
-    } catch {
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "AI extraction failed.";
       dispatch(
-        applyExtraction({
-          fields: demoComplaintFields,
-          extraction: {
-            status: "complete",
-            progress: 100,
-            sourceName,
-            message:
-              "Demo extraction complete. Review the highlighted fields before saving.",
-          },
-          message:
-            "I found a potential product quality complaint involving visible contamination. I assigned High priority for review because the issue may affect batch quality. Please verify the batch and retain sample details.",
+        setExtraction({
+          status: "error",
+          progress: 0,
+          sourceName,
+          message: `AI extraction failed: ${message}`,
         }),
       );
+      dispatch(addMessage({ role: "assistant", text: "AI extraction failed. Check the backend logs and try again." }));
     }
   };
   const handleFile = async (event) => {
@@ -192,9 +187,25 @@ function App() {
     if (!file) return;
     try {
       const isTextFile =
-        file.type === "text/plain" || file.name.toLowerCase().endsWith(".txt");
-      const text = isTextFile ? await file.text() : demoComplaintText;
+        file.type === "text/plain" ||
+        file.name.toLowerCase().endsWith(".txt") ||
+        file.name.toLowerCase().endsWith(".eml");
+      if (!isTextFile) {
+        throw new Error("AI intake currently accepts TXT and EML files.");
+      }
+      const text = await file.text();
       await runExtraction(text, file.name);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "AI file extraction failed.";
+      dispatch(
+        setExtraction({
+          status: "error",
+          progress: 0,
+          sourceName: file.name,
+          message,
+        }),
+      );
+      dispatch(addMessage({ role: "assistant", text: message }));
     } finally {
       // Allow the same file to be selected again after a retry.
       input.value = "";
@@ -206,12 +217,7 @@ function App() {
       const data = await complaintApi.save(fields);
       dispatch(setSaveStatus({ status: "saved", id: data.complaint_id }));
     } catch {
-      dispatch(
-        setSaveStatus({
-          status: "saved",
-          id: `CMP-${Date.now().toString().slice(-6)}`,
-        }),
-      );
+      dispatch(setSaveStatus({ status: "error" }));
     }
   };
   const askAssistant = () => {
@@ -354,6 +360,10 @@ function App() {
                 <>
                   <CheckCircle2 size={15} /> Saved {savedId}
                 </>
+              ) : saveStatus === "error" ? (
+                <>
+                  <Info size={15} /> Save failed — retry
+                </>
               ) : (
                 <>
                   <ClipboardCheck size={15} /> Save complaint
@@ -436,7 +446,7 @@ function App() {
               className="file-input"
               type="file"
               hidden
-              accept=".pdf,.doc,.docx,.txt,.eml"
+              accept=".txt,.eml"
               onChange={handleFile}
             />
             <button
