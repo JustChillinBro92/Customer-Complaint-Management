@@ -17,6 +17,7 @@
   box-sizing: border-box;
 }
 body {
+  zoom: 1.1;
   margin: 0;
   background: radial-gradient(circle at 12% 0%, #fff 0, #f4f6f5 34rem);
   color: var(--ink);

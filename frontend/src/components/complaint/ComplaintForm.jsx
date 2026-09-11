@@ -48,7 +48,10 @@ export function ComplaintForm({
         </button>
         <button
           className="button primary"
-          onClick={onSave}
+          onClick={async () => {
+            const success = await onSave();
+            if(success) onReset();
+          }}
           disabled={saveStatus === "saving"}
         >
           {saveStatus === "saving" ? (

@@ -35,7 +35,10 @@ Optional `.env` values (place `.env` in the project root, next to `backend`):
 ```text
 GROQ_API_KEY=your_token
 GROQ_MODEL=openai/gpt-oss-120b
+DATABASE_URL=postgresql://postgres:password@localhost:5432/complaint_intelligence
 ```
+
+The backend creates the `complaints` table automatically on startup. Complaint fields are stored as PostgreSQL `JSONB` in the `fields` column.
 
 The complaint extraction, risk assessment, and assistant updates require the configured Groq model. AI intake currently reads TXT and EML files directly; unsupported file types are rejected instead of being substituted with demo data.
 

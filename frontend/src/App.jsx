@@ -105,8 +105,10 @@ function App() {
     try {
       const data = await complaintApi.save(fields);
       dispatch(setSaveStatus({ status: "saved", id: data.complaint_id }));
+      return true;
     } catch {
       dispatch(setSaveStatus({ status: "error" }));
+      return false;
     }
   };
 
