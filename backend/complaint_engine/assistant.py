@@ -34,7 +34,9 @@ def assistant_update_fields(state: AssistantState) -> AssistantState:
         f"fields: {sorted(FIELD_NAMES)}. Update only fields supported by the user's request. "
         f"Current fields: {json.dumps(state['fields'])}. User request: {state['message']}"
     )
-    parsed = parse_json_response(model.invoke(prompt).content)
+    response = model.invoke(prompt)
+    print("[AI DEBUG] assistant response:", response.content, flush=True)
+    parsed = parse_json_response(response.content)
     updates = normalize_updates(parsed.get("field_updates"), state["fields"])
     return {
         "field_updates": updates,

@@ -202,7 +202,7 @@
 .thinking-ring:before {
   content: "";
   position: absolute;
-  inset: -0.3px;
+  inset: -0.1px;
   z-index: -1;
   border-radius: 50%;
   background: conic-gradient(

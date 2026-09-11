@@ -28,6 +28,7 @@ def init_db() -> None:
             )
             """
         )
+        connection.execute("ALTER TABLE complaints ADD COLUMN IF NOT EXISTS analysis JSONB")
 
 
 def create_complaint(fields: dict) -> dict:
@@ -47,13 +48,25 @@ def create_complaint(fields: dict) -> dict:
 def list_complaints() -> list[dict]:
     with get_connection() as connection:
         return connection.execute(
-            "SELECT complaint_id, fields, created_at FROM complaints ORDER BY created_at DESC"
+            "SELECT complaint_id, fields, analysis, created_at FROM complaints ORDER BY created_at DESC"
         ).fetchall()
 
 
 def get_complaint(complaint_id: str) -> dict | None:
     with get_connection() as connection:
         return connection.execute(
-            "SELECT complaint_id, fields, created_at FROM complaints WHERE complaint_id = %s",
+            "SELECT complaint_id, fields, analysis, created_at FROM complaints WHERE complaint_id = %s",
             (complaint_id,),
+        ).fetchone()
+
+
+def update_analysis(complaint_id: str, analysis: dict) -> dict | None:
+    with get_connection() as connection:
+        return connection.execute(
+            """
+            UPDATE complaints SET analysis = %s::jsonb
+            WHERE complaint_id = %s
+            RETURNING complaint_id, fields, analysis, created_at
+            """,
+            (json.dumps(analysis), complaint_id),
         ).fetchone()

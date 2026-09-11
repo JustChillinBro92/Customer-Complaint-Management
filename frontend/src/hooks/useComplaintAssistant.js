@@ -5,22 +5,22 @@ import { complaintApi } from '../services/complaintApi'
 
 export function useComplaintAssistant(fields) {
   const dispatch = useDispatch()
-  const [isAsking, setIsAsking] = useState(false)
+  const [isUpdating, setIsUpdating] = useState(false)
 
-  const ask = async (message) => {
+  const updateComplaint = async (message) => {
     const trimmedMessage = message.trim()
-    if (!trimmedMessage || isAsking) return
+    if (!trimmedMessage || isUpdating) return
     dispatch(addMessage({ role: 'user', text: trimmedMessage }))
-    setIsAsking(true)
+    setIsUpdating(true)
     try {
-      const response = await complaintApi.askAssistant(trimmedMessage, fields)
+      const response = await complaintApi.updateComplaint(trimmedMessage, fields)
       dispatch(applyAssistantUpdate({ fields: response.field_updates, message: response.assistant_message }))
     } catch {
       dispatch(addMessage({ role: 'assistant', text: 'I could not reach the assistant service. Please edit the fields directly or try again.' }))
     } finally {
-      setIsAsking(false)
+      setIsUpdating(false)
     }
   }
 
-  return { ask, isAsking }
+  return { updateComplaint, isUpdating }
 }

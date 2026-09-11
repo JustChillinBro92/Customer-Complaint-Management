@@ -12,7 +12,7 @@ export const complaintApi = {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ text, source_name: sourceName })
   }),
-  askAssistant: (message, fields) => request('/api/complaints/assistant', {
+  updateComplaint: (message, fields) => request('/api/complaints/update', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ message, fields })
@@ -21,5 +21,7 @@ export const complaintApi = {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ fields })
-  })
+  }),
+  list: () => request('/api/complaints'),
+  review: (complaintId) => request(`/api/complaints/${complaintId}/review`, { method: 'POST' })
 }

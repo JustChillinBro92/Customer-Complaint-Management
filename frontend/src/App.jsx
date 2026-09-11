@@ -15,6 +15,7 @@ import { PageHeader } from "./components/layout/PageHeader";
 import { WorkflowStrip } from "./components/layout/WorkflowStrip";
 import { ComplaintForm } from "./components/complaint/ComplaintForm";
 import { ComplaintCopilot } from "./components/copilot/ComplaintCopilot";
+import { ComplaintRecords } from "./components/records/ComplaintRecords";
 
 function App() {
   const dispatch = useDispatch();
@@ -23,7 +24,9 @@ function App() {
   );
   const fileRef = useRef(null);
   const [mobileNav, setMobileNav] = useState(false);
-  const { ask, isAsking } = useComplaintAssistant(fields);
+  const [view, setView] = useState("complaints");
+  const [isMessagePending, setIsMessagePending] = useState(false);
+  const { updateComplaint, isUpdating } = useComplaintAssistant(fields);
 
   const changeField = (name, value) => dispatch(updateField({ name, value }));
 
@@ -112,11 +115,22 @@ function App() {
     }
   };
 
-  const askAssistant = () => {
+  const handleChatInput = async () => {
     const input = document.querySelector("#assistant-input");
     const text = input.value.trim();
     if (!text) return;
-    ask(text);
+    const isUpdateRequest = /^(please\s+|can\s+you\s+|could\s+you\s+|i\s+want\s+you\s+to\s+)?(update|change|set|modify|replace|correct|edit)\b/i.test(text);
+    setIsMessagePending(true);
+    try {
+      if (isUpdateRequest) {
+        await updateComplaint(text);
+      } else {
+        dispatch(addMessage({ role: "user", text }));
+        await runExtraction(text, "Chat complaint");
+      }
+    } finally {
+      setIsMessagePending(false);
+    }
     input.value = "";
   };
 
@@ -125,27 +139,34 @@ function App() {
       <TopBar
         mobileNav={mobileNav}
         onToggleMenu={() => setMobileNav(!mobileNav)}
+        onNavigate={setView}
+        activeView={view}
       />
-      <main className="page">
-        <PageHeader />
-        <WorkflowStrip />
-        <ComplaintForm
-          fields={fields}
-          saveStatus={saveStatus}
-          savedId={savedId}
-          onChange={changeField}
-          onReset={() => dispatch(resetComplaint())}
-          onSave={handleSave}
-        />
-        <ComplaintCopilot
-          extraction={extraction}
-          assistant={assistant}
-          isAsking={isAsking}
-          fileRef={fileRef}
-          onFile={handleFile}
-          onAsk={askAssistant}
-        />
-      </main>
+      {view === "records" ? (
+        <ComplaintRecords onBack={() => setView("complaints")} />
+      ) : (
+        <main className="page">
+          <PageHeader />
+          <WorkflowStrip />
+          <ComplaintForm
+            fields={fields}
+            saveStatus={saveStatus}
+            savedId={savedId}
+            onChange={changeField}
+            onReset={() => dispatch(resetComplaint())}
+            onSave={handleSave}
+          />
+          <ComplaintCopilot
+            assistant={assistant}
+            isUpdating={isUpdating}
+            isMessagePending={isMessagePending}
+            isExtracting={extraction.status === "processing"}
+            fileRef={fileRef}
+            onFile={handleFile}
+            onChatInput={handleChatInput}
+          />
+        </main>
+      )}
       <Footer />
     </div>
   );

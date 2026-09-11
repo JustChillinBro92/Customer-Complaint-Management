@@ -19,11 +19,31 @@ def extract_fields(state: ComplaintState) -> ComplaintState:
 
     model = ChatGroq(model=GROQ_MODEL, temperature=0)
     response = model.invoke(
-        "Extract the pharmaceutical complaint into JSON using the exact form field names. "
-        "Return only a JSON object and do not invent values that are not supported by the complaint. "
+        "Extract the pharmaceutical complaint into JSON using exactly the form field names below. "
+        "Return every key listed exactly once. Use null when a value is not present; never omit a key. "
+        "Do not use alternate names, abbreviations, or synonyms such as manufactureDate, "
+        "affectedCartons, damagedCartons, or contactEmail. Return only a JSON object and do not "
+        "invent values that are not supported by the complaint. Exact keys: source, customerName, "
+        "customerEmail, productName, productType, strength, batchNumber, manufacturingDate, "
+        "expiryDate, quantity, complaintType, complaintDate, description, initialSeverity, priority. "
+        "quantity must contain the affected quantity as one value, and description must contain "
+        "the complete complaint narrative and requested action. "
+        "For categorical fields, the value MUST EXACTLY match one of these options: "
+        f"productType={sorted(FIELD_OPTIONS['productType'])}; "
+        f"source={sorted(FIELD_OPTIONS['source'])}; "
+        f"complaintType={sorted(FIELD_OPTIONS['complaintType'])}; "
+        f"initialSeverity={sorted(FIELD_OPTIONS['initialSeverity'])}; "
+        f"priority={sorted(FIELD_OPTIONS['priority'])}. "
         f"Complaint text: {state['text']}"
     )
-    return {"fields": parse_json_response(response.content)}
+    
+    print("[AI DEBUG] extraction response:", response.content, flush=True)
+    fields = parse_json_response(response.content)
+    
+    for field_name, options in FIELD_OPTIONS.items():
+        if field_name in fields and fields[field_name] is not None and fields[field_name] not in options:
+            raise ValueError(f"AI returned invalid {field_name}: {fields[field_name]}")
+    return {"fields": fields}
 
 
 def assess_risk(state: ComplaintState) -> ComplaintState:
