@@ -1,5 +1,6 @@
 import json
 import os
+from datetime import date
 from typing import Any
 
 from .config import GROQ_MODEL
@@ -18,6 +19,7 @@ def extract_fields(state: ComplaintState) -> ComplaintState:
     from langchain_groq import ChatGroq
 
     model = ChatGroq(model=GROQ_MODEL, temperature=0)
+    current_date = date.today().isoformat()
     response = model.invoke(
         "Extract the pharmaceutical complaint into JSON using exactly the form field names below. "
         "Return every key listed exactly once. Use null when a value is not present; never omit a key. "
@@ -28,6 +30,12 @@ def extract_fields(state: ComplaintState) -> ComplaintState:
         "expiryDate, quantity, complaintType, complaintDate, description, initialSeverity, priority. "
         "quantity must contain the affected quantity as one value, and description must contain "
         "the complete complaint narrative and requested action. "
+        "customerName must contain the full legal or company name of the customer, reporter, "
+        "or organization submitting the complaint when it appears in the text. "
+        "All date fields (manufacturingDate, expiryDate, complaintDate) MUST use ISO format "
+        "YYYY-MM-DD, including dates written in words. If complaintDate is not mentioned, use "
+        f"today's date ({current_date}); return null for manufacturingDate or expiryDate only "
+        "when absent. "
         "For categorical fields, the value MUST EXACTLY match one of these options: "
         f"productType={sorted(FIELD_OPTIONS['productType'])}; "
         f"source={sorted(FIELD_OPTIONS['source'])}; "
@@ -64,7 +72,11 @@ def assess_risk(state: ComplaintState) -> ComplaintState:
         f"Complaint text: {state.get('text', '')} "
         f"Extracted fields: {json.dumps(fields)}"
     )
-    parsed = parse_json_response(model.invoke(prompt).content)
+    
+    risk_response = model.invoke(prompt)
+    print("[AI DEBUG] risk assessment response:", risk_response.content, flush=True)
+    
+    parsed = parse_json_response(risk_response.content)
     severity = parsed.get("initialSeverity")
     priority = parsed.get("priority")
     if severity not in FIELD_OPTIONS["initialSeverity"] or priority not in FIELD_OPTIONS["priority"]:

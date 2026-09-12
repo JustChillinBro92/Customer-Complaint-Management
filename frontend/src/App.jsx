@@ -78,14 +78,17 @@ function App() {
     const input = event.currentTarget;
     const file = input.files?.[0];
     if (!file) return;
+    setIsMessagePending(true);
     try {
-      const isTextFile =
-        file.type === "text/plain" ||
-        file.name.toLowerCase().endsWith(".txt") ||
-        file.name.toLowerCase().endsWith(".eml");
-      if (!isTextFile)
-        throw new Error("AI intake currently accepts TXT and EML files.");
-      await runExtraction(await file.text(), file.name);
+      const supported = /\.(txt|eml|docx|pdf)$/i.test(file.name);
+      if (!supported) throw new Error("AI intake supports TXT, DOCX, and PDF files.");
+      const data = await complaintApi.extractFile(file);
+      dispatch(addMessage({ role: "user", text: `Attached ${file.name}` }));
+      dispatch(applyExtraction({
+        fields: data.fields,
+        extraction: { status: "complete", progress: 100, sourceName: file.name, message: data.assistant_message },
+        message: data.assistant_message,
+      }));
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "AI file extraction failed.";
@@ -99,6 +102,7 @@ function App() {
       );
       dispatch(addMessage({ role: "assistant", text: message }));
     } finally {
+      setIsMessagePending(false);
       input.value = "";
     }
   };

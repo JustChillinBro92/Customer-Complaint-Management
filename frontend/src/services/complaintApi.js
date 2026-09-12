@@ -19,6 +19,10 @@ export const complaintApi = {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ text, source_name: sourceName })
   }),
+  extractFile: (file) => request('/api/complaints/extract-file', {
+    method: 'POST',
+    body: (() => { const data = new FormData(); data.append('file', file); return data; })()
+  }),
   updateComplaint: (message, fields) => request('/api/complaints/update', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

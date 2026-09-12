@@ -1,5 +1,7 @@
 from typing import Any
-from fastapi import FastAPI, HTTPException
+from io import BytesIO
+from pathlib import Path
+from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from complaint_engine.workflows import extract_complaint, update_complaint_fields
@@ -33,6 +35,30 @@ def health() -> dict[str, str]:
 @app.post("/api/complaints/extract")
 def extract(request: ExtractionRequest) -> dict[str, Any]:
     return extract_complaint(request.text, request.source_name)
+
+@app.post("/api/complaints/extract-file")
+async def extract_file(file: UploadFile = File(...)) -> dict[str, Any]:
+    filename = file.filename or "uploaded complaint"
+    extension = Path(filename).suffix.lower()
+    content = await file.read()
+    try:
+        if extension in {".txt", ".eml"}:
+            text = content.decode("utf-8-sig")
+        elif extension == ".pdf":
+            from pypdf import PdfReader
+            text = "\n".join(page.extract_text() or "" for page in PdfReader(BytesIO(content)).pages)
+        elif extension == ".docx":
+            from docx import Document
+            text = "\n".join(paragraph.text for paragraph in Document(BytesIO(content)).paragraphs)
+        elif extension == ".doc":
+            raise ValueError("Legacy .doc files are not supported; save the document as .docx or PDF.")
+        else:
+            raise ValueError("Supported files are TXT, DOCX, and PDF.")
+        if not text.strip():
+            raise ValueError("The uploaded file contains no readable text.")
+        return extract_complaint(text, filename)
+    except Exception as error:
+        raise HTTPException(status_code=400, detail=f"Could not read {filename}: {error}") from error
 
 @app.post("/api/complaints")
 def save_complaint(request: ComplaintRecord) -> dict[str, str]:

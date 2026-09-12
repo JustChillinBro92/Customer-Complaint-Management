@@ -55,6 +55,7 @@
   align-items: center;
   gap: 8px;
   border-bottom: 2px solid transparent;
+  cursor: pointer;
 }
 .nav-links a.active {
   color: var(--blue-dark);

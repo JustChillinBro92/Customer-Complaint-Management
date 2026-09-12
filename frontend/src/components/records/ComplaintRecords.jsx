@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import {
   ArrowLeft,
   ClipboardCheck,
+  ChevronDown,
+  ChevronUp,
   LoaderCircle,
   RefreshCw,
 } from "lucide-react";
@@ -22,6 +24,7 @@ export function ComplaintRecords({ onBack }) {
   const [loading, setLoading] = useState(true);
   const [reviewing, setReviewing] = useState("");
   const [error, setError] = useState("");
+  const [collapsedReviews, setCollapsedReviews] = useState({});
 
   const loadRecords = async () => {
     setLoading(true);
@@ -48,6 +51,7 @@ export function ComplaintRecords({ onBack }) {
           record.complaint_id === complaintId ? updated : record,
         ),
       );
+      setCollapsedReviews((current) => ({ ...current, [complaintId]: true }));
     } catch (requestError) {
       setError(requestError.message);
     } finally {
@@ -86,6 +90,7 @@ export function ComplaintRecords({ onBack }) {
           {records.map((record) => {
             const fields = record.fields || {};
             const analysis = record.analysis;
+            const isReviewCollapsed = collapsedReviews[record.complaint_id] ?? true;
             return (
               <article className="record-card" key={record.complaint_id}>
                 <div className="record-card-head">
@@ -101,24 +106,42 @@ export function ComplaintRecords({ onBack }) {
                     <time>
                       {new Date(record.created_at).toLocaleDateString()}
                     </time>
-                    <button
-                      className="button primary"
-                      onClick={() => runReview(record.complaint_id)}
-                      disabled={reviewing === record.complaint_id}
-                    >
-                      {reviewing === record.complaint_id ? (
-                        <>
-                          <LoaderCircle className="spin" size={14} />{" "}
-                          Reviewing...
-                        </>
-                      ) : (
-                        "Run AI review"
+                    <div className="record-review-actions">
+                      <button
+                        className="button primary"
+                        onClick={() => runReview(record.complaint_id)}
+                        disabled={reviewing === record.complaint_id}
+                      >
+                        {reviewing === record.complaint_id ? (
+                          <>
+                            <LoaderCircle className="spin" size={14} />{" "}
+                            Reviewing...
+                          </>
+                        ) : (
+                          "Run AI review"
+                        )}
+                      </button>
+                      {analysis && (
+                        <button
+                          className="button quiet review-collapse-button"
+                          onClick={() =>
+                            setCollapsedReviews((current) => ({
+                              ...current,
+                              [record.complaint_id]: !isReviewCollapsed,
+                            }))
+                          }
+                          aria-expanded={!isReviewCollapsed}
+                          aria-controls={`review-${record.complaint_id}`}
+                          title={isReviewCollapsed ? "Expand AI review" : "Collapse AI review"}
+                        >
+                          {isReviewCollapsed ? <ChevronDown size={15} /> : <ChevronUp size={15} />}
+                        </button>
                       )}
-                    </button>
+                    </div>
                   </div>
                 </div>
-                {analysis && (
-                  <div className="review-grid">
+                {analysis && !isReviewCollapsed && (
+                  <div className="review-grid" id={`review-${record.complaint_id}`}>
                     <ReviewSection title="Complaint summary">
                       <p>{analysis.summary}</p>
                     </ReviewSection>

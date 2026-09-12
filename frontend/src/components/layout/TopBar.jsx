@@ -1,7 +1,12 @@
 import { FlaskConical, Menu } from "lucide-react";
 import "./layout.css";
 
-export function TopBar({ mobileNav, onToggleMenu, onNavigate, activeView = "complaints" }) {
+export function TopBar({
+  mobileNav,
+  onToggleMenu,
+  onNavigate,
+  activeView = "complaints",
+}) {
   return (
     <header className="topbar">
       <div className="brand">
@@ -14,11 +19,18 @@ export function TopBar({ mobileNav, onToggleMenu, onNavigate, activeView = "comp
         </div>
       </div>
       <nav className={mobileNav ? "nav-links open" : "nav-links"}>
-        <a className={activeView === "complaints" ? "active" : ""} onClick={() => onNavigate("complaints")}>
-          Complaints <span>12</span>
+        <a
+          className={activeView === "complaints" ? "active" : ""}
+          onClick={() => onNavigate("complaints")}
+        >
+          Complaints
         </a>
-        <a>Investigations</a><a>CAPA</a>
-        <a className={activeView === "records" ? "active" : ""} onClick={() => onNavigate("records")}>Records</a>
+        <a
+          className={activeView === "records" ? "active" : ""}
+          onClick={() => onNavigate("records")}
+        >
+          Records
+        </a>
       </nav>
       <div className="top-actions">
         <button
