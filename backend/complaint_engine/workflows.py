@@ -21,7 +21,7 @@ def build_complaint_graph():
     return graph.compile()
 
 
-def build_assistant_graph():
+def build_update_complaint_graph():
     graph = StateGraph(AssistantState)
     graph.add_node("update_fields", assistant_update_fields)
     graph.set_entry_point("update_fields")
@@ -30,7 +30,7 @@ def build_assistant_graph():
 
 
 COMPLAINT_GRAPH = build_complaint_graph()
-ASSISTANT_GRAPH = build_assistant_graph()
+UPDATE_COMPLAINT_GRAPH = build_update_complaint_graph()
 
 
 def extract_complaint(text: str, source_name: str) -> dict[str, Any]:
@@ -39,5 +39,5 @@ def extract_complaint(text: str, source_name: str) -> dict[str, Any]:
 
 
 def update_complaint_fields(message: str, fields: dict[str, Any]) -> dict[str, Any]:
-    result = ASSISTANT_GRAPH.invoke({"message": message, "fields": fields})
+    result = UPDATE_COMPLAINT_GRAPH.invoke({"message": message, "fields": fields})
     return {"field_updates": result["field_updates"], "assistant_message": result["assistant_message"]}
