@@ -109,8 +109,8 @@ function App() {
       const data = await complaintApi.save(fields);
       dispatch(setSaveStatus({ status: "saved", id: data.complaint_id }));
       return true;
-    } catch {
-      dispatch(setSaveStatus({ status: "error" }));
+    } catch (error) {
+      dispatch(setSaveStatus({ status: error?.status === 409 ? "duplicate" : "error", id: error?.detail?.duplicate_of }));
       return false;
     }
   };

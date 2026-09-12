@@ -52,13 +52,17 @@ export function ComplaintForm({
             const success = await onSave();
             if(success) onReset();
           }}
-          disabled={saveStatus === "saving"}
+          disabled={saveStatus === "saving" || saveStatus === "duplicate"}
         >
           {saveStatus === "saving" ? (
             "Saving..."
           ) : saveStatus === "saved" ? (
             <>
               <CheckCircle2 size={15} /> Saved {savedId}
+            </>
+          ) : saveStatus === "duplicate" ? (
+            <>
+              <Info size={15} /> Duplicate entry
             </>
           ) : saveStatus === "error" ? (
             <>

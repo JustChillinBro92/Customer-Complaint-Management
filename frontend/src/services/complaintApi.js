@@ -2,7 +2,14 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
 async function request(path, options) {
   const response = await fetch(`${API_URL}${path}`, options)
-  if (!response.ok) throw new Error(`Complaint API request failed: ${response.status}`)
+  if (!response.ok) {
+    let detail = null
+    try { detail = await response.json() } catch { /* keep the HTTP status error */ }
+    const error = new Error(detail?.detail?.message || detail?.detail || `Complaint API request failed: ${response.status}`)
+    error.status = response.status
+    error.detail = detail?.detail
+    throw error
+  }
   return response.json()
 }
 

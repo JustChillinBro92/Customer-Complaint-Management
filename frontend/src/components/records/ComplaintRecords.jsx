@@ -136,23 +136,6 @@ export function ComplaintRecords({ onBack }) {
                         </small>
                       )}
                     </ReviewSection>
-                    <ReviewSection title="Duplicate detection">
-                      <p>
-                        {analysis.duplicate_detection?.is_duplicate
-                          ? "Potential duplicate found"
-                          : "No duplicate identified"}
-                        . {analysis.duplicate_detection?.explanation}
-                      </p>
-                      {analysis.duplicate_detection?.matching_complaint_ids
-                        ?.length > 0 && (
-                        <small>
-                          Matches:{" "}
-                          {analysis.duplicate_detection.matching_complaint_ids.join(
-                            ", ",
-                          )}
-                        </small>
-                      )}
-                    </ReviewSection>
                     <ReviewSection title="AI risk classification">
                       <p>
                         <strong>

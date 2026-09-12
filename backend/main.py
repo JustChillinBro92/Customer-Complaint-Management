@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from complaint_engine.workflows import extract_complaint, update_complaint_fields
 from complaint_engine.review import review_complaint
-from database import create_complaint, get_complaint, init_db, list_complaints, update_analysis
+from database import DuplicateComplaintError, create_complaint, get_complaint, init_db, list_complaints, update_analysis
 
 app = FastAPI(title="Complaint Intelligence API", version="0.1.0")
 app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
@@ -38,6 +38,8 @@ def extract(request: ExtractionRequest) -> dict[str, Any]:
 def save_complaint(request: ComplaintRecord) -> dict[str, str]:
     try:
         record = create_complaint(request.fields)
+    except DuplicateComplaintError as error:
+        raise HTTPException(status_code=409, detail={"message": "Duplicate complaint", "duplicate_of": error.duplicate_of}) from error
     except Exception as error:
         raise HTTPException(status_code=503, detail=f"Could not save complaint: {error}") from error
     return {"complaint_id": record["complaint_id"], "status": "saved"}
